@@ -1,0 +1,20 @@
+pipeline {
+    agent any
+    stages {
+        stage('Code Download') {
+            steps {
+                git branch: 'main', url: 'https://github.com/ProgrammingWithVS/Python-Webapp.git'
+            }
+        }
+        stage ('Docker Build') {
+            steps {
+                withCredentials([string(credentialsId: 'dockersecret', variable: 'dockertoken')]) {
+                sh 'docker login -u sucheeth -p $dockertoken'
+                sh 'make image'
+                sh 'make push'
+                sh 'docker run -d -p 5000:5000 sucheeth/python-webapp'
+                }
+            }
+        }
+    }
+}
